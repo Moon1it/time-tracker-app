@@ -3,34 +3,33 @@ package service
 import (
 	"context"
 	"time-tracker-app/internal/domain"
-	"time-tracker-app/internal/repository"
 
 	"github.com/google/uuid"
 )
 
-// type IUserRepository interface {
-// 	CreateUser(ctx context.Context, arg repository.CreateUserParams) error
-// 	GetUserByUUID(ctx context.Context, userUuid pgtype.UUID) (repository.User, error)
-// 	GetUsers(ctx context.Context) (repository.User, error)
-// }
-
-type UserService struct {
-	userRepository *repository.UserRepository
+type IUserRepository interface {
+	CreateUser(c context.Context, userID uuid.UUID, userInfo *domain.UserInfo) error
+	GetUsers(c context.Context) ([]domain.User, error)
+	GetUserByUUID(c context.Context, userUUID uuid.UUID) (*domain.User, error)
 }
 
-func NewUserService(userRepository *repository.UserRepository) *UserService {
+type UserService struct {
+	userRepository IUserRepository
+}
+
+func NewUserService(userRepository IUserRepository) *UserService {
 	return &UserService{userRepository}
 }
 
-func (us *UserService) CreateUser(ctx context.Context, info *domain.UserInfo) (string, error) {
-	userID := uuid.New()
+func (us *UserService) CreateUser(c context.Context, info *domain.UserInfo) (string, error) {
+	userUUID := uuid.New()
 
-	err := us.userRepository.CreateUser(ctx, userID, info)
+	err := us.userRepository.CreateUser(c, userUUID, info)
 	if err != nil {
 		return "", err
 	}
 
-	return userID.String(), nil
+	return userUUID.String(), nil
 }
 
 func (us *UserService) GetAllUsers(c context.Context) ([]domain.User, error) {
@@ -42,11 +41,16 @@ func (us *UserService) GetAllUsers(c context.Context) ([]domain.User, error) {
 	return users, nil
 }
 
-// func (us *UserService) GetUserByID(ctx context.Context, userID string) (string, error) {
-// 	user, err := us.userRepository.GetUserByUUID(ctx, converter.ToPgUUIDFromService(userID))
-// 	if err != nil {
-// 		return "", err
-// 	}
+func (us *UserService) GetUserByID(ctx context.Context, userID string) (*domain.User, error) {
+	userUUID, err := uuid.Parse(userID)
+	if err != nil {
+		return nil, err
+	}
 
-// 	return user, nil
-// }
+	user, err := us.userRepository.GetUserByUUID(ctx, userUUID)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
