@@ -29,3 +29,15 @@ func ToUsersFromRepo(dbUsers []db.User) []domain.User {
 
 	return users
 }
+
+func ToUserFromRepo(user *db.User) *domain.User {
+	return &domain.User{
+		ID: uuid.UUID(user.Uuid.Bytes).String(),
+		Info: domain.UserInfo{
+			FirstName: user.FirstName,
+			LastName:  user.LastName,
+		},
+		CreatedAt: user.CreatedAt.Time,
+		UpdatedAt: &user.UpdatedAt.Time,
+	}
+}

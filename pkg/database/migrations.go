@@ -7,10 +7,7 @@ import (
 )
 
 func RunMigrations(connString string) error {
-	m, err := migrate.New(
-		"file://internal/db/migrations",
-		// "postgres://user:password@localhost:5432/time_tracker_app_db?sslmode=disable")
-		connString)
+	m, err := migrate.New("file://internal/db/migrations", connString)
 	if err != nil {
 		return err
 	}

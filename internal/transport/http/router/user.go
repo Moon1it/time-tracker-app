@@ -19,7 +19,7 @@ func (ur *UserRouter) setUserRoutes(router fiber.Router) {
 	{
 		users.Post("/", ur.userHandler.CreateUser)
 		users.Get("/", ur.userHandler.GetAllUsers)
-		// users.Get("/:userID", ur.userHandler.GetUserByID)
+		users.Get("/:userID", ur.userHandler.GetUserByID)
 		// users.Delete("/:userID", ur.userHandler.CreateUser)
 	}
 }

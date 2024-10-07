@@ -1,18 +1,26 @@
 package handler
 
 import (
+	"context"
+	"fmt"
 	"time-tracker-app/internal/converter"
-	"time-tracker-app/internal/service"
+	"time-tracker-app/internal/domain"
 	"time-tracker-app/internal/transport/http/dto"
 
 	"github.com/gofiber/fiber/v3"
 )
 
-type UserHandler struct {
-	userService *service.UserService
+type IUserService interface {
+	CreateUser(c context.Context, info *domain.UserInfo) (string, error)
+	GetAllUsers(c context.Context) ([]domain.User, error)
+	GetUserByID(ctx context.Context, userID string) (*domain.User, error)
 }
 
-func NewUserHandler(userService *service.UserService) *UserHandler {
+type UserHandler struct {
+	userService IUserService
+}
+
+func NewUserHandler(userService IUserService) *UserHandler {
 	return &UserHandler{userService}
 }
 
@@ -22,34 +30,30 @@ func (uh *UserHandler) CreateUser(c fiber.Ctx) error {
 		return err
 	}
 
+	fmt.Println(payload)
+
 	userID, err := uh.userService.CreateUser(c.Context(), converter.ToUserInfoFromHandler(payload))
 	if err != nil {
-		return err
+		c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"": ""})
 	}
 
-	return c.Status(200).JSON(userID)
+	return c.Status(fiber.StatusOK).JSON(userID)
 }
 
 func (uh *UserHandler) GetAllUsers(c fiber.Ctx) error {
 	users, err := uh.userService.GetAllUsers(c.Context())
 	if err != nil {
-		return nil
 	}
 
-	return c.Status(200).JSON(converter.ToGetAllUsersResponseFromService(users))
+	return c.Status(fiber.StatusOK).JSON(converter.ToGetAllUsersResponseFromService(users))
 }
 
-// func (uh *UserHandler) GetUserByID(c fiber.Ctx) error {
-// userIDRaw := c.Params("userID")
-// userID, err := uuid.Parse(userIDRaw)
-// if err != nil {
-// 	c.Status(500).JSON("...")
-// }
+func (uh *UserHandler) GetUserByID(c fiber.Ctx) error {
+	userID := c.Params("userID")
 
-// user, ok := userMap[userID]
-// if !ok {
-// 	return c.Status(500).JSON(map[string]string{"message": "user not found"})
-// }
+	user, err := uh.userService.GetUserByID(c.Context(), userID)
+	if err != nil {
+	}
 
-// 	// return c.Status(200).JSON(user)
-// }
+	return c.Status(fiber.StatusOK).JSON(user)
+}
