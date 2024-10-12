@@ -1,0 +1,10 @@
+CREATE TABLE tasks (
+    uuid UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    user_uuid UUID NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    duration INTEGER NOT NULL DEFAULT 0,
+    is_completed BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP,
+    CONSTRAINT fk_user FOREIGN KEY(user_uuid) REFERENCES users(uuid) ON DELETE CASCADE
+);

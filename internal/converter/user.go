@@ -5,7 +5,7 @@ import (
 	"time-tracker-app/internal/transport/http/dto"
 )
 
-func ToUserInfoFromHandler(info *dto.CreateUserPaylaod) *domain.UserInfo {
+func ToUserInfoFromHandler(info *dto.UserInfo) *domain.UserInfo {
 	return &domain.UserInfo{
 		FirstName: info.FirstName,
 		LastName:  info.LastName,
@@ -17,9 +17,13 @@ func ToGetAllUsersResponseFromService(users []domain.User) *dto.GetAllUsersRespo
 
 	for _, user := range users {
 		usersResponse = append(usersResponse, dto.UserResponse{
-			ID:        user.ID,
-			FirstName: user.Info.FirstName,
-			LastName:  user.Info.LastName,
+			ID: user.ID,
+			Info: dto.UserInfo{
+				FirstName: user.Info.FirstName,
+				LastName:  user.Info.LastName,
+			},
+			CreatedAt: user.CreatedAt,
+			UpdatedAt: user.UpdatedAt,
 		})
 	}
 

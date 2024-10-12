@@ -8,6 +8,16 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+type Task struct {
+	Uuid        pgtype.UUID      `json:"uuid"`
+	UserUuid    pgtype.UUID      `json:"user_uuid"`
+	Name        string           `json:"name"`
+	Duration    int32            `json:"duration"`
+	IsCompleted bool             `json:"is_completed"`
+	CreatedAt   pgtype.Timestamp `json:"created_at"`
+	UpdatedAt   pgtype.Timestamp `json:"updated_at"`
+}
+
 type User struct {
 	Uuid      pgtype.UUID      `json:"uuid"`
 	FirstName string           `json:"first_name"`
