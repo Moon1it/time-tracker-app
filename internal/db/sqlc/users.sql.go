@@ -11,23 +11,24 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const createUser = `-- name: CreateUser :exec
+const createUser = `-- name: CreateUser :one
 INSERT INTO users (
-    uuid, first_name, last_name
+    first_name, last_name
 ) VALUES (
-    $1, $2, $3
-)
+    $1, $2
+) RETURNING uuid
 `
 
 type CreateUserParams struct {
-	Uuid      pgtype.UUID `json:"uuid"`
-	FirstName string      `json:"first_name"`
-	LastName  string      `json:"last_name"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
 }
 
-func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) error {
-	_, err := q.db.Exec(ctx, createUser, arg.Uuid, arg.FirstName, arg.LastName)
-	return err
+func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (pgtype.UUID, error) {
+	row := q.db.QueryRow(ctx, createUser, arg.FirstName, arg.LastName)
+	var uuid pgtype.UUID
+	err := row.Scan(&uuid)
+	return uuid, err
 }
 
 const getUserByUUID = `-- name: GetUserByUUID :one

@@ -11,9 +11,13 @@ import (
 )
 
 type Querier interface {
-	CreateUser(ctx context.Context, arg CreateUserParams) error
+	CreateTask(ctx context.Context, arg CreateTaskParams) (pgtype.UUID, error)
+	CreateUser(ctx context.Context, arg CreateUserParams) (pgtype.UUID, error)
+	GetTaskByUUID(ctx context.Context, taskUuid pgtype.UUID) (Task, error)
+	GetTasksByUserUUID(ctx context.Context, userUuid pgtype.UUID) ([]Task, error)
 	GetUserByUUID(ctx context.Context, userUuid pgtype.UUID) (User, error)
 	GetUsers(ctx context.Context) ([]User, error)
+	UpdateTaskByUUID(ctx context.Context, arg UpdateTaskByUUIDParams) (Task, error)
 }
 
 var _ Querier = (*Queries)(nil)

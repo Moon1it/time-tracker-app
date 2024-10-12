@@ -1,9 +1,9 @@
--- name: CreateUser :exec
+-- name: CreateUser :one
 INSERT INTO users (
-    uuid, first_name, last_name
+    first_name, last_name
 ) VALUES (
-    @uuid, @first_name, @last_name
-);
+    @first_name, @last_name
+) RETURNING uuid;
 
 -- name: GetUsers :many
 SELECT * FROM users;

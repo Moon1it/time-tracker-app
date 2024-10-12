@@ -2,7 +2,6 @@ package handler
 
 import (
 	"context"
-	"fmt"
 	"time-tracker-app/internal/converter"
 	"time-tracker-app/internal/domain"
 	"time-tracker-app/internal/transport/http/dto"
@@ -25,12 +24,10 @@ func NewUserHandler(userService IUserService) *UserHandler {
 }
 
 func (uh *UserHandler) CreateUser(c fiber.Ctx) error {
-	payload := new(dto.CreateUserPaylaod)
+	payload := new(dto.UserInfo)
 	if err := c.Bind().Body(payload); err != nil {
 		return err
 	}
-
-	fmt.Println(payload)
 
 	userID, err := uh.userService.CreateUser(c.Context(), converter.ToUserInfoFromHandler(payload))
 	if err != nil {

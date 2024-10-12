@@ -18,19 +18,18 @@ func NewUserRepository(querier db.Querier) *UserRepository {
 	return &UserRepository{querier}
 }
 
-func (ur *UserRepository) CreateUser(c context.Context, userUUID uuid.UUID, userInfo *domain.UserInfo) error {
+func (ur *UserRepository) CreateUser(c context.Context, userInfo *domain.UserInfo) (string, error) {
 	arg := db.CreateUserParams{
-		Uuid:      pgtype.UUID{Bytes: userUUID, Valid: true},
 		FirstName: userInfo.FirstName,
 		LastName:  userInfo.LastName,
 	}
 
-	err := ur.querier.CreateUser(c, arg)
+	userPgUUID, err := ur.querier.CreateUser(c, arg)
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	return nil
+	return uuid.UUID(userPgUUID.Bytes).String(), nil
 }
 
 func (ur *UserRepository) GetUsers(c context.Context) ([]domain.User, error) {
@@ -42,7 +41,12 @@ func (ur *UserRepository) GetUsers(c context.Context) ([]domain.User, error) {
 	return converter.ToUsersFromRepo(users), nil
 }
 
-func (ur *UserRepository) GetUserByUUID(c context.Context, userUUID uuid.UUID) (*domain.User, error) {
+func (ur *UserRepository) GetUserByID(c context.Context, userID string) (*domain.User, error) {
+	userUUID, err := uuid.Parse(userID)
+	if err != nil {
+		return nil, err
+	}
+
 	user, err := ur.querier.GetUserByUUID(c, pgtype.UUID{Bytes: userUUID, Valid: true})
 	if err != nil {
 		return nil, err
